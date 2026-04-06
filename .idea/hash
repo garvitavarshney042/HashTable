@@ -1,0 +1,33 @@
+import java.util.*;
+
+public class Problem1 {
+
+    static HashMap<String, Boolean> users = new HashMap<>();
+
+    public static boolean isAvailable(String username) {
+        return !users.containsKey(username);
+    }
+
+    public static String suggest(String username) {
+        int i = 1;
+        while (users.containsKey(username + i)) {
+            i++;
+        }
+        return username + i;
+    }
+
+    public static void main(String[] args) {
+
+        users.put("john", true);
+        users.put("john1", true);
+
+        String newUser = "john";
+
+        if (isAvailable(newUser)) {
+            System.out.println("Available");
+        } else {
+            System.out.println("Taken");
+            System.out.println("Try: " + suggest(newUser));
+        }
+    }
+}
