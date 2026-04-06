@@ -1,22 +1,93 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-public class TrainConsistManagementApp {
-    public static void main(String[] args) {
-        // Create a HashMap to store bogie-capacity mapping
-        HashMap<String, Integer> bogieCapacityMap = new HashMap<>();
+// Add-On Service Class
+class Service {
+    private String serviceName;
+    private double cost;
 
-        // Insert bogies with their capacities using put()
-        bogieCapacityMap.put("Sleeper", 72);       // 72 seats
-        bogieCapacityMap.put("AC Chair", 56);      // 56 seats
-        bogieCapacityMap.put("First Class", 24);   // 24 seats
-        bogieCapacityMap.put("Rectangular Goods", 10000); // 10,000 kg load
-        bogieCapacityMap.put("Cylindrical Goods", 8000);  // 8,000 kg load
+    public Service(String serviceName, double cost) {
+        this.serviceName = serviceName;
+        this.cost = cost;
+    }
 
-        // Display bogie-capacity details using entrySet()
-        System.out.println("Train Consist Capacity Details:");
-        for (Map.Entry<String, Integer> entry : bogieCapacityMap.entrySet()) {
-            System.out.println("Bogie: " + entry.getKey() + " | Capacity: " + entry.getValue());
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public double getCost() {
+        return cost;
+    }
+
+    @Override
+    public String toString() {
+        return serviceName + " (₹" + cost + ")";
+    }
+}
+
+// Add-On Service Manager
+class AddOnServiceManager {
+
+    // Map<ReservationID, List of Services>
+    private Map<String, List<Service>> serviceMap = new HashMap<>();
+
+    // Add service to a reservation
+    public void addService(String reservationId, Service service) {
+        serviceMap.putIfAbsent(reservationId, new ArrayList<>());
+        serviceMap.get(reservationId).add(service);
+    }
+
+    // Get services for a reservation
+    public List<Service> getServices(String reservationId) {
+        return serviceMap.getOrDefault(reservationId, new ArrayList<>());
+    }
+
+    // Calculate total add-on cost
+    public double calculateTotalCost(String reservationId) {
+        double total = 0;
+        for (Service s : getServices(reservationId)) {
+            total += s.getCost();
         }
+        return total;
+    }
+
+    // Display services
+    public void displayServices(String reservationId) {
+        List<Service> services = getServices(reservationId);
+
+        if (services.isEmpty()) {
+            System.out.println("No add-on services selected.");
+            return;
+        }
+
+        System.out.println("Services for Reservation ID: " + reservationId);
+        for (Service s : services) {
+            System.out.println("- " + s);
+        }
+
+        System.out.println("Total Add-On Cost: ₹" + calculateTotalCost(reservationId));
+    }
+}
+
+// Main Class
+public class UseCase7AddOnServiceSelection {
+
+    public static void main(String[] args) {
+
+        AddOnServiceManager manager = new AddOnServiceManager();
+
+        // Sample Reservation ID
+        String reservationId = "R101";
+
+        // Guest selects services
+        Service s1 = new Service("Breakfast", 500);
+        Service s2 = new Service("Airport Pickup", 800);
+        Service s3 = new Service("Spa", 1200);
+
+        manager.addService(reservationId, s1);
+        manager.addService(reservationId, s2);
+        manager.addService(reservationId, s3);
+
+        // Display selected services
+        manager.displayServices(reservationId);
     }
 }
