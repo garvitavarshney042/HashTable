@@ -314,3 +314,94 @@ public class UseCase9ErrorHandlingValidation {
         System.out.println("\nSystem continues running safely...");
     }
 }
+
+10 UC9
+
+import java.util.*;
+
+// Custom Exception
+class InvalidBookingException extends Exception {
+    public InvalidBookingException(String message) {
+        super(message);
+    }
+}
+
+// Validator Class
+class InvalidBookingValidator {
+
+    private static final List<String> VALID_ROOMS =
+            Arrays.asList("Standard", "Deluxe", "Suite");
+
+    public static void validate(String roomType, int availableRooms)
+            throws InvalidBookingException {
+
+        // Check valid room type
+        if (!VALID_ROOMS.contains(roomType)) {
+            throw new InvalidBookingException("Error: Invalid room type!");
+        }
+
+        // Check availability
+        if (availableRooms <= 0) {
+            throw new InvalidBookingException("Error: Rooms not available!");
+        }
+    }
+}
+
+// Booking System
+class BookingSystem {
+
+    private Map<String, Integer> inventory = new HashMap<>();
+
+    public BookingSystem() {
+        inventory.put("Standard", 2);
+        inventory.put("Deluxe", 1);
+        inventory.put("Suite", 0); // no rooms to trigger error
+    }
+
+    public void bookRoom(String guestName, String roomType) {
+        try {
+            int available = inventory.getOrDefault(roomType, 0);
+
+            // Validate first (Fail-Fast)
+            InvalidBookingValidator.validate(roomType, available);
+
+            // Update inventory safely
+            inventory.put(roomType, available - 1);
+
+            System.out.println("Booking successful for " + guestName +
+                    " in " + roomType + " room.");
+
+        } catch (InvalidBookingException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Show inventory (to prove system is stable)
+    public void displayInventory() {
+        System.out.println("\nCurrent Room Availability:");
+        for (String room : inventory.keySet()) {
+            System.out.println(room + " -> " + inventory.get(room));
+        }
+    }
+}
+
+// Main Class
+public class UseCase9ErrorHandlingValidation {
+
+    public static void main(String[] args) {
+
+        BookingSystem system = new BookingSystem();
+
+        // Valid booking
+        system.bookRoom("Asha", "Standard");
+
+        // Invalid room type
+        system.bookRoom("Rahul", "Luxury");
+
+        // No availability
+        system.bookRoom("Neha", "Suite");
+
+        // System still runs safely
+        system.displayInventory();
+    }
+}
